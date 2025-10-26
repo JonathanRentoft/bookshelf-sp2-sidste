@@ -198,21 +198,6 @@
                 </executions>
             </plugin>
 
-            <!-- Plugin til at bygge den eksekverbare JAR-fil -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.4.1</version> <!-- Brug nyeste version -->
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <addClasspath>true</addClasspath> <!-- Nødvendigt hvis du har dependencies -->
-                            <mainClass>dat.Main</mainClass> <!-- Peger på din Main klasse -->
-                        </manifest>
-                    </archive>
-                </configuration>
-            </plugin>
-
             <!-- Plugin til at køre tests -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -220,32 +205,37 @@
                 <version>3.0.0</version>
             </plugin>
 
-            <!-- ANBEFALET: Plugin for at inkludere dependencies i JAR'en (Fat JAR) -->
-            <!-- Hvis du IKKE bruger javalin-bundle, er dette nødvendigt -->
-            <!-- Da du bruger javalin-bundle, er det muligvis IKKE nødvendigt, -->
-            <!-- men det skader normalt ikke at inkludere det for en sikkerheds skyld -->
-            <!-- Hvis det giver problemer, kan du fjerne denne plugin -->
+            <!-- Maven Shade Plugin - Creates executable fat JAR with all dependencies -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.7.1</version> <!-- Brug nyeste version -->
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.5.2</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
                         <goals>
-                            <goal>single</goal>
+                            <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <archive>
-                                <manifest>
-                                    <mainClass>dat.Main</mainClass> <!-- Gentag Main klasse her -->
-                                </manifest>
-                            </archive>
-                            <descriptorRefs>
-                                <descriptorRef>jar-with-dependencies</descriptorRef>
-                            </descriptorRefs>
-                            <finalName>app</finalName> <!-- Sørger for at navnet forbliver 'app.jar' -->
-                            <appendAssemblyId>false</appendAssemblyId> <!-- Undgå at tilføje '-jar-with-dependencies' til navnet -->
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>dat.Main</mainClass>
+                                </transformer>
+                                <!-- Handle duplicate files in dependencies -->
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                            </transformers>
+                            <filters>
+                                <filter>
+                                    <!-- Exclude signature files from signed JARs -->
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
                         </configuration>
                     </execution>
                 </executions>
