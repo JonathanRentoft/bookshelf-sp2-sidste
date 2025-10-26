@@ -1,16 +1,52 @@
-## Hotel REST Exercise
+# Book REST API
 
-This is a simple REST API for a hotel booking system. 
-It is implemented using Javalin and JPA
+## Beskrivelse
+REST API til håndtering af 500 bøger med CRUD operationer.
 
-![Hotel](./docs/bates_hotel.jpg)
+## Teknologi
+- Java 17
+- Javalin 6.1.3
+- Hibernate 6.2.4
+- PostgreSQL
+- Maven
 
-### How to run
+## Database Setup
+Opret PostgreSQL database: `books`
+- Username: `postgres`
+- Password: `postgres`
+- Port: `5432`
 
-1. Create a database in your local Postgres instance called `hotel`
-2. Run the main method in the config.Populate class to populate the database with some data
-3. Run the main method in the Main class to start the server on port 7070
-4. See the routes in your browser at `http://localhost:7070/routes`
-5. Request the `http://localhost:7070/hotels` endpoint in your browser to see the list of hotels and rooms
-6. Use the dev.http file to test the routes, GET/POST/PUT/DELETE requests are available
+## Kør Applikation
+```bash
+mvn clean install
+java -jar target/app.jar
+```
+Server starter på port 7170.
 
+## API Endpoints
+Base URL: `http://localhost:7170/api/v1`
+
+### Bøger
+- `GET /books` - Hent alle bøger
+- `GET /books/{id}` - Hent bog efter ID
+- `POST /books` - Opret ny bog
+- `PUT /books/{id}` - Opdater bog
+- `DELETE /books/{id}` - Slet bog
+
+## Book Model
+```json
+{
+  "id": 1,
+  "title": "Bog Titel",
+  "author": "Forfatter Navn",
+  "publisher": "Forlag",
+  "yearPublished": 2023,
+  "genre": "FICTION"
+}
+```
+
+## Genres
+`FICTION`, `NONFICTION`, `SCIENCE`, `HISTORY`, `BIOGRAPHY`, `FANTASY`, `MYSTERY`, `ROMANCE`, `THRILLER`, `HORROR`
+
+## Test Data
+Databasen populeres automatisk med 500 bøger ved opstart.
