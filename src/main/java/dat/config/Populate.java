@@ -11,7 +11,7 @@ import java.util.List;
 public class Populate {
 
     public static void populateDatabase() {
-        EntityManagerFactory emf = HibernateConfig.getEntityManagerFactory("books");
+        EntityManagerFactory emf = HibernateConfig.getEntityManagerFactory("books_db");
 
         try (var em = emf.createEntityManager()) {
             em.getTransaction().begin();
