@@ -1,5 +1,18 @@
 # Book REST API
 
+## 🚀 Quick Start - Docker Hub Deployment
+
+For production deployment using Docker Hub, see **[DEPLOYMENT.md](DEPLOYMENT.md)**
+
+**Quick deploy:**
+```bash
+# 1. Configure .env file with your Docker Hub username
+# 2. Run deployment script
+./deploy-dockerhub.sh
+```
+
+---
+
 ## Beskrivelse
 REST API til håndtering af 500 bøger med CRUD operationer.
 
