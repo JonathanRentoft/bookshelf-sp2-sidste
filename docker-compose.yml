@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: books-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-books_db}
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - books-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Books REST API Application
+  books-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: books-api
+    restart: unless-stopped
+    ports:
+      - "${API_PORT:-7070}:7070"
+    environment:
+      # Deployment flag
+      DEPLOYED: "true"
+      
+      # Database configuration
+      CONNECTION_STR: jdbc:postgresql://postgres:5432/
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DB_NAME: ${DB_NAME:-books_db}
+      
+      # JWT/Security configuration
+      SECRET_KEY: ${SECRET_KEY:-841D8A6C80CBA4FCAD32D5367C18C53B}
+      ISSUER: ${ISSUER:-cphbusiness.dat}
+      TOKEN_EXPIRATION_TIME: ${TOKEN_EXPIRATION_TIME:-3600000}
+      
+      # Application configuration
+      JAVALIN_PORT: 7070
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - books-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:7070/api/v1/routes"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  books-network:
+    driver: bridge
