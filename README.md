@@ -11,6 +11,23 @@ For production deployment using Docker Hub, see **[DEPLOYMENT.md](DEPLOYMENT.md)
 ./deploy-dockerhub.sh
 ```
 
+## 🌐 Domain Setup (books.johannesfoog.dk)
+
+To make your API accessible via your domain with HTTPS:
+
+```bash
+# On your server (161.35.82.205), run:
+sudo bash setup-domain.sh your-email@example.com
+```
+
+This will:
+- Install and configure Nginx as a reverse proxy
+- Set up SSL certificate with Let's Encrypt
+- Configure automatic certificate renewal
+- Enable HTTPS for your domain
+
+See **[DOMAIN_SETUP.md](DOMAIN_SETUP.md)** for detailed instructions and troubleshooting.
+
 ---
 
 ## Beskrivelse
