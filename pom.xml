@@ -17,23 +17,24 @@
         <testcontainers.version>1.18.0</testcontainers.version>
         <junit.version>5.9.1</junit.version>
 
-        <!-- Project properties  -->
-        <!--  token    -->
+        <!-- Project properties -->
+        <!-- Token -->
         <secret.key>841D8A6C80CBA4FCAD32D5367C18C53B</secret.key>
         <issuer>cphbusiness.dat</issuer>
         <token.expiration.time>3600000</token.expiration.time>
-        <!--  DB    -->
-        <db.name>startcode</db.name>
+        <!-- DB -->
+        <!-- Bemærk: Disse bruges primært lokalt. Docker Compose bruger .env-filen. -->
+        <db.name>books_db</db.name> <!-- Rettet til books_db for konsistens -->
         <db.username>postgres</db.username>
         <db.password>postgres</db.password>
         <db.connection.string>jdbc:postgresql://localhost:5432/</db.connection.string>
-        <!--  Javalin    -->
-        <javalin.port>7070</javalin.port>
+        <!-- Javalin -->
+        <javalin.port>7170</javalin.port> <!-- Rettet til 7170 -->
     </properties>
+
     <dependencies>
 
-        <!--   R.E.S.T     -->
-
+        <!-- REST -->
         <dependency>
             <groupId>io.javalin</groupId>
             <artifactId>javalin-bundle</artifactId>
@@ -45,15 +46,15 @@
             <version>2.17.0</version>
         </dependency>
 
-        <!--  Utilities      -->
+        <!-- Utilities -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.18.34</version>
             <scope>provided</scope>
         </dependency>
-        <!--  DB    -->
 
+        <!-- DB -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
@@ -65,20 +66,24 @@
             <version>${hibernate-version}</version>
         </dependency>
         <dependency>
-            <!--   Hibernate Connection Pool      -->
+            <!-- Hibernate Connection Pool -->
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
             <version>5.0.1</version>
         </dependency>
         <dependency>
-            <!--   Hibernate Connection Pool      -->
+            <!-- Hibernate Connection Pool Bridge -->
             <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-hikaricp</artifactId>
             <version>${hibernate-version}</version>
         </dependency>
+        <dependency>
+            <groupId>jakarta.persistence</groupId>
+            <artifactId>jakarta.persistence-api</artifactId>
+            <version>3.1.0</version>
+        </dependency>
 
-        <!--  Logging   -->
-
+        <!-- Logging -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
@@ -94,14 +99,21 @@
             <artifactId>slf4j-api</artifactId>
             <version>2.0.16</version>
         </dependency>
+
+        <!-- Security / JWT -->
         <dependency>
-            <groupId>jakarta.persistence</groupId>
-            <artifactId>jakarta.persistence-api</artifactId>
-            <version>3.1.0</version>
+            <groupId>org.mindrot</groupId>
+            <artifactId>jbcrypt</artifactId>
+            <version>0.4</version>
+        </dependency>
+        <dependency>
+            <groupId>com.auth0</groupId>
+            <artifactId>java-jwt</artifactId>
+            <version>4.4.0</version>
         </dependency>
 
-        <!--  TESTING      -->
 
+        <!-- TESTING -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
@@ -133,16 +145,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.mindrot</groupId>
-            <artifactId>jbcrypt</artifactId>
-            <version>0.4</version>
-        </dependency>
-        <dependency>
-            <groupId>com.auth0</groupId>
-            <artifactId>java-jwt</artifactId>
-            <version>4.4.0</version>
-        </dependency>
-        <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>postgresql</artifactId>
             <version>${testcontainers.version}</version>
@@ -152,6 +154,7 @@
             <groupId>org.testcontainers</groupId>
             <artifactId>jdbc</artifactId>
             <version>${testcontainers.version}</version>
+            <scope>test</scope> <!-- Typisk test scope for denne også -->
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
@@ -174,13 +177,11 @@
     </dependencies>
 
     <build>
-        <finalName>app</finalName> <!-- This is the name of the jar file -->
+        <finalName>app</finalName> <!-- Navnet på den resulterende jar-fil -->
         <plugins>
 
-            <!--  Pom.xml properties plugin  -->
-
+            <!-- Plugin til at skrive pom.xml properties til en fil -->
             <plugin>
-                <!--  https://www.baeldung.com/java-accessing-maven-properties  -->
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>properties-maven-plugin</artifactId>
                 <version>1.0.0</version>
@@ -197,13 +198,59 @@
                 </executions>
             </plugin>
 
-            <!--   Surefire plugin (Testing)  -->
+            <!-- Plugin til at bygge den eksekverbare JAR-fil -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.4.1</version> <!-- Brug nyeste version -->
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath> <!-- Nødvendigt hvis du har dependencies -->
+                            <mainClass>dat.Main</mainClass> <!-- Peger på din Main klasse -->
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
 
+            <!-- Plugin til at køre tests -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.0.0</version>
             </plugin>
+
+            <!-- ANBEFALET: Plugin for at inkludere dependencies i JAR'en (Fat JAR) -->
+            <!-- Hvis du IKKE bruger javalin-bundle, er dette nødvendigt -->
+            <!-- Da du bruger javalin-bundle, er det muligvis IKKE nødvendigt, -->
+            <!-- men det skader normalt ikke at inkludere det for en sikkerheds skyld -->
+            <!-- Hvis det giver problemer, kan du fjerne denne plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.7.1</version> <!-- Brug nyeste version -->
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <archive>
+                                <manifest>
+                                    <mainClass>dat.Main</mainClass> <!-- Gentag Main klasse her -->
+                                </manifest>
+                            </archive>
+                            <descriptorRefs>
+                                <descriptorRef>jar-with-dependencies</descriptorRef>
+                            </descriptorRefs>
+                            <finalName>app</finalName> <!-- Sørger for at navnet forbliver 'app.jar' -->
+                            <appendAssemblyId>false</appendAssemblyId> <!-- Undgå at tilføje '-jar-with-dependencies' til navnet -->
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
     </build>
 </project>
