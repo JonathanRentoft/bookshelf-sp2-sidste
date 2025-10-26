@@ -15,7 +15,11 @@ public class BookController implements IController<BookDTO, Integer> {
     private final BookDAO dao;
 
     public BookController() {
-        EntityManagerFactory emf = HibernateConfig.getEntityManagerFactory("books");
+        String dbName = System.getenv("DB_NAME");
+        if (dbName == null || dbName.isEmpty()) {
+            dbName = "books_db"; // Default fallback
+        }
+        EntityManagerFactory emf = HibernateConfig.getEntityManagerFactory(dbName);
         this.dao = BookDAO.getInstance(emf);
     }
 

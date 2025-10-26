@@ -11,7 +11,11 @@ import java.util.List;
 public class Populate {
 
     public static void populateDatabase() {
-        EntityManagerFactory emf = HibernateConfig.getEntityManagerFactory("books");
+        String dbName = System.getenv("DB_NAME");
+        if (dbName == null || dbName.isEmpty()) {
+            dbName = "books_db"; // Default fallback
+        }
+        EntityManagerFactory emf = HibernateConfig.getEntityManagerFactory(dbName);
 
         try (var em = emf.createEntityManager()) {
             em.getTransaction().begin();
