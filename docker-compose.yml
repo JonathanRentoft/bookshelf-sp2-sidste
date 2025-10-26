@@ -24,9 +24,7 @@ services:
 
   # Books REST API Application
   books-api:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ${DOCKER_USERNAME:-your-dockerhub-username}/books-api:latest
     container_name: books-api
     restart: unless-stopped
     ports:
