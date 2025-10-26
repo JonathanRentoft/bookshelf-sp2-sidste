@@ -1,54 +1,37 @@
-// Hotel API
+// Book API
 
-GET {{url}}/hotels
-
-###
-
-GET {{url}}/hotels/2
+GET {{url}}/books
 
 ###
 
-POST {{url}}/hotels
+GET {{url}}/books/2
+
+###
+
+POST {{url}}/books
 Content-Type: application/json
 
 {
-  "hotelName": "Holiday Inn",
-  "hotelAddress": "Stuttgart",
-  "hotelType": "STANDARD"
+  "title": "Ny Bog",
+  "author": "John Doe",
+  "publisher": "Forlag A/S",
+  "yearPublished": 2023,
+  "genre": "FICTION"
 }
 
 ###
 
-PUT {{url}}/hotels/3
+PUT {{url}}/books/3
 Content-Type: application/json
 
 {
-  "hotelName": "Ritz Carlton",
-  "hotelAddress": "London City",
-  "hotelType": "LUXURY"
+  "title": "Opdateret Bog",
+  "author": "Jane Smith",
+  "publisher": "Nyt Forlag",
+  "yearPublished": 2024,
+  "genre": "NONFICTION"
 }
 
 ###
 
-DELETE {{url}}/hotels/5
-
-###
-
-// Room API
-
-GET {{url}}/rooms
-
-###
-
-GET {{url}}/rooms/1
-
-###
-
-POST {{url}}/rooms/hotel/3
-Content-Type: application/json
-
-{
-  "roomNumber": 11,
-  "roomPrice": 1150,
-  "roomType": "SINGLE"
-}
+DELETE {{url}}/books/5

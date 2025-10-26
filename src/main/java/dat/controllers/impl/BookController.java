@@ -2,21 +2,21 @@ package dat.controllers.impl;
 
 import dat.config.HibernateConfig;
 import dat.controllers.IController;
-import dat.daos.impl.HotelDAO;
-import dat.dtos.HotelDTO;
-import dat.entities.Hotel;
+import dat.daos.impl.BookDAO;
+import dat.dtos.BookDTO;
+import dat.entities.Book;
 import io.javalin.http.Context;
 import jakarta.persistence.EntityManagerFactory;
 
 import java.util.List;
 
-public class HotelController implements IController<HotelDTO, Integer> {
+public class BookController implements IController<BookDTO, Integer> {
 
-    private final HotelDAO dao;
+    private final BookDAO dao;
 
-    public HotelController() {
-        EntityManagerFactory emf = HibernateConfig.getEntityManagerFactory("hotel");
-        this.dao = HotelDAO.getInstance(emf);
+    public BookController() {
+        EntityManagerFactory emf = HibernateConfig.getEntityManagerFactory("books");
+        this.dao = BookDAO.getInstance(emf);
     }
 
     @Override
@@ -24,30 +24,30 @@ public class HotelController implements IController<HotelDTO, Integer> {
         // request
         int id = ctx.pathParamAsClass("id", Integer.class).check(this::validatePrimaryKey, "Not a valid id").get();
         // DTO
-        HotelDTO hotelDTO = dao.read(id);
+        BookDTO bookDTO = dao.read(id);
         // response
         ctx.res().setStatus(200);
-        ctx.json(hotelDTO, HotelDTO.class);
+        ctx.json(bookDTO, BookDTO.class);
     }
 
     @Override
     public void readAll(Context ctx) {
         // List of DTOS
-        List<HotelDTO> hotelDTOS = dao.readAll();
+        List<BookDTO> bookDTOS = dao.readAll();
         // response
         ctx.res().setStatus(200);
-        ctx.json(hotelDTOS, HotelDTO.class);
+        ctx.json(bookDTOS, BookDTO.class);
     }
 
     @Override
     public void create(Context ctx) {
         // request
-        HotelDTO jsonRequest = ctx.bodyAsClass(HotelDTO.class);
+        BookDTO jsonRequest = ctx.bodyAsClass(BookDTO.class);
         // DTO
-        HotelDTO hotelDTO = dao.create(jsonRequest);
+        BookDTO bookDTO = dao.create(jsonRequest);
         // response
         ctx.res().setStatus(201);
-        ctx.json(hotelDTO, HotelDTO.class);
+        ctx.json(bookDTO, BookDTO.class);
     }
 
     @Override
@@ -55,10 +55,10 @@ public class HotelController implements IController<HotelDTO, Integer> {
         // request
         int id = ctx.pathParamAsClass("id", Integer.class).check(this::validatePrimaryKey, "Not a valid id").get();
         // dto
-        HotelDTO hotelDTO = dao.update(id, validateEntity(ctx));
+        BookDTO bookDTO = dao.update(id, validateEntity(ctx));
         // response
         ctx.res().setStatus(200);
-        ctx.json(hotelDTO, Hotel.class);
+        ctx.json(bookDTO, Book.class);
     }
 
     @Override
@@ -76,12 +76,13 @@ public class HotelController implements IController<HotelDTO, Integer> {
     }
 
     @Override
-    public HotelDTO validateEntity(Context ctx) {
-        return ctx.bodyValidator(HotelDTO.class)
-                .check( h -> h.getHotelAddress() != null && !h.getHotelAddress().isEmpty(), "Hotel address must be set")
-                .check( h -> h.getHotelName() != null && !h.getHotelName().isEmpty(), "Hotel name must be set")
-                .check( h -> h.getHotelType() != null, "Hotel type must be set")
+    public BookDTO validateEntity(Context ctx) {
+        return ctx.bodyValidator(BookDTO.class)
+                .check( b -> b.getTitle() != null && !b.getTitle().isEmpty(), "Title must be set")
+                .check( b -> b.getAuthor() != null && !b.getAuthor().isEmpty(), "Author must be set")
+                .check( b -> b.getPublisher() != null && !b.getPublisher().isEmpty(), "Publisher must be set")
+                .check( b -> b.getYearPublished() != null && b.getYearPublished() > 0, "Year published must be set")
+                .check( b -> b.getGenre() != null, "Genre must be set")
                 .get();
     }
-
 }
