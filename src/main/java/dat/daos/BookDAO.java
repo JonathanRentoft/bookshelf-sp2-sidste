@@ -1,8 +1,9 @@
+
 package dat.daos.impl;
 
 import dat.daos.IDAO;
-import dat.dtos.HotelDTO;
-import dat.entities.Hotel;
+import dat.dtos.BookDTO;
+import dat.entities.Book;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.TypedQuery;
@@ -11,57 +12,59 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
-public class HotelDAO implements IDAO<HotelDTO, Integer> {
+public class BookDAO implements IDAO<BookDTO, Integer> {
 
-    private static HotelDAO instance;
+    private static BookDAO instance;
     private static EntityManagerFactory emf;
 
-    public static HotelDAO getInstance(EntityManagerFactory _emf) {
+    public static BookDAO getInstance(EntityManagerFactory _emf) {
         if (instance == null) {
             emf = _emf;
-            instance = new HotelDAO();
+            instance = new BookDAO();
         }
         return instance;
     }
 
     @Override
-    public HotelDTO read(Integer integer) {
+    public BookDTO read(Integer integer) {
         try (EntityManager em = emf.createEntityManager()) {
-            Hotel hotel = em.find(Hotel.class, integer);
-            return new HotelDTO(hotel);
+            Book book = em.find(Book.class, integer);
+            return new BookDTO(book);
         }
     }
 
     @Override
-    public List<HotelDTO> readAll() {
+    public List<BookDTO> readAll() {
         try (EntityManager em = emf.createEntityManager()) {
-            TypedQuery<HotelDTO> query = em.createQuery("SELECT new dat.dtos.HotelDTO(h) FROM Hotel h", HotelDTO.class);
+            TypedQuery<BookDTO> query = em.createQuery("SELECT new dat.dtos.BookDTO(b) FROM Book b", BookDTO.class);
             return query.getResultList();
         }
     }
 
     @Override
-    public HotelDTO create(HotelDTO hotelDTO) {
+    public BookDTO create(BookDTO bookDTO) {
         try (EntityManager em = emf.createEntityManager()) {
             em.getTransaction().begin();
-            Hotel hotel = new Hotel(hotelDTO);
-            em.persist(hotel);
+            Book book = new Book(bookDTO);
+            em.persist(book);
             em.getTransaction().commit();
-            return new HotelDTO(hotel);
+            return new BookDTO(book);
         }
     }
 
     @Override
-    public HotelDTO update(Integer integer, HotelDTO hotelDTO) {
+    public BookDTO update(Integer integer, BookDTO bookDTO) {
         try (EntityManager em = emf.createEntityManager()) {
             em.getTransaction().begin();
-            Hotel h = em.find(Hotel.class, integer);
-            h.setHotelName(hotelDTO.getHotelName());
-            h.setHotelAddress(hotelDTO.getHotelAddress());
-            h.setHotelType(hotelDTO.getHotelType());
-            Hotel mergedHotel = em.merge(h);
+            Book b = em.find(Book.class, integer);
+            b.setTitle(bookDTO.getTitle());
+            b.setAuthor(bookDTO.getAuthor());
+            b.setPublisher(bookDTO.getPublisher());
+            b.setYearPublished(bookDTO.getYearPublished());
+            b.setGenre(bookDTO.getGenre());
+            Book mergedBook = em.merge(b);
             em.getTransaction().commit();
-            return mergedHotel != null ? new HotelDTO(mergedHotel) : null;
+            return mergedBook != null ? new BookDTO(mergedBook) : null;
         }
     }
 
@@ -69,9 +72,9 @@ public class HotelDAO implements IDAO<HotelDTO, Integer> {
     public void delete(Integer integer) {
         try (EntityManager em = emf.createEntityManager()) {
             em.getTransaction().begin();
-            Hotel hotel = em.find(Hotel.class, integer);
-            if (hotel != null) {
-                em.remove(hotel);
+            Book book = em.find(Book.class, integer);
+            if (book != null) {
+                em.remove(book);
             }
             em.getTransaction().commit();
         }
@@ -80,8 +83,8 @@ public class HotelDAO implements IDAO<HotelDTO, Integer> {
     @Override
     public boolean validatePrimaryKey(Integer integer) {
         try (EntityManager em = emf.createEntityManager()) {
-            Hotel hotel = em.find(Hotel.class, integer);
-            return hotel != null;
+            Book book = em.find(Book.class, integer);
+            return book != null;
         }
     }
 }
